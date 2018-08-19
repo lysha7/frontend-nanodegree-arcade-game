@@ -1,39 +1,104 @@
-// Enemies our player must avoid
-var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
+class Enemy {
+    // Set initial enemy image, location, and speed
+    constructor(y, speed) {
+        this.sprite = 'images/enemy-bug.png';
+        this.x = 0;
+        this.y = y;
+        this.speed = speed;
+    }
 
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
-};
+    // Render enemy on screen with offsets so that x and y will refer to grid squares
+    render() {
+        ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83 - 20);
+    }
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
-Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-};
+    // Move enemy across screen according to its given speed. If enemy goes off screen right, loop back to screen left
+    update(dt) {
+        if (this.x > 5) {
+            this.x = -1;
+        }
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
+        else {
+            this.x += dt * this.speed;
+        }
+    }
+}
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+class Player {
+    // Set initial player image and location, and initialize a check to see if player is currently moving
+    constructor() {
+        this.sprite = 'images/char-boy.png';
+        this.x = 2;
+        this.y = 5;
+        this.isMoving = false;
+    }
 
+    // Render play on screen with offsets so that x and y will refer to grid squares. Set isMoving to false because player is no longer moving once rendered
+    render() {
+        ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83 - 20);
+        this.isMoving = false;
+    }
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
+    // Check for collisions and wins whenever player updates
+    update(allEnemies) {
 
+        // Move player back to starting position if it has collided with an enemy
+        if (this.checkCollisions(allEnemies)) {
+            this.x = 2;
+            this.y = 5;
+        }
 
+        // Check if player has reached water and has finished moving. If so, alert "You won" and reload page
+        if (this.y === 0 && !this.isMoving) {
+            alert("You won!");
+            location.reload();
+        }
+    }
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+    // Loop through array of enemies, check if player and enemy are on the same y block and if their x values are within range for collision
+    checkCollisions(enemies) {
+        for (var enemy of enemies) {
+            if (this.y === enemy.y) {
+                if (this.x >= enemy.x - 0.5 && this.x <= enemy.x + 0.5) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Move player left, right, up, or down according to user input, as long as this will not move player off the grid
+    handleInput(key) {
+        if (key === 'left') {
+            this.x = this.x === 0 ? this.x : this.x - 1;
+        }
+        if (key === 'right') {
+            this.x = this.x === 4 ? this.x : this.x + 1;
+        }
+        if (key === 'up') {
+            this.y = this.y === 0 ? this.y : this.y - 1;
+        }
+        if (key === 'down') {
+            this.y = this.y === 5 ? this.y : this.y + 1;
+        }
+        // Set isMoving variable to true when move is made
+        this.isMoving = true;
+    }
+}
+
+// Initialize 3 enemies and add them to allEnemies array
+const enemy1 = new Enemy(1, 2);
+const enemy2 = new Enemy(2, 0.5);
+const enemy3 = new Enemy(3, 1);
+
+const allEnemies = [enemy1, enemy2, enemy3];
+
+// Initialize 1 player
+const player = new Player();
+
+// Listen for keyup events on left, right, up, and down arrows
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
