@@ -25,12 +25,13 @@ class Enemy {
 }
 
 class Player {
-    // Set initial player image and location, and initialize a check to see if player is currently moving
+    // Set initial player image and location, and initialize checks to see if player is currently moving and if player has already won
     constructor() {
         this.sprite = 'images/char-boy.png';
         this.x = 2;
         this.y = 5;
         this.isMoving = false;
+        this.won = false;
     }
 
     // Render play on screen with offsets so that x and y will refer to grid squares. Set isMoving to false because player is no longer moving once rendered
@@ -48,8 +49,9 @@ class Player {
             this.y = 5;
         }
 
-        // Check if player has reached water and has finished moving. If so, alert "You won" and reload page
-        if (this.y === 0 && !this.isMoving) {
+        // Check if player has reached water, has finished moving, and has not already won. If so, alert "You won" and reload page
+        if (this.y === 0 && !this.isMoving && !this.won) {
+            this.won = true;
             alert("You won!");
             location.reload();
         }
